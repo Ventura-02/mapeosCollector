@@ -159,7 +159,7 @@ function saveJson() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'edited_data.json';  // Nombre del archivo a descargar
+    a.download = 'edited_data.curvedefs';  // Nombre del archivo a descargar
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
