@@ -167,7 +167,36 @@ function saveJson() {
 }
 
 function exportToXlsx() {
-    const worksheet = XLSX.utils.json_to_sheet(jsonData);
+    // Crear una copia del JSON para modificar cómo se mostrarán los datos
+    const processedData = jsonData.map(item => {
+        return {
+            Uid: item.Uid,
+            Unit: item.Unit,
+            TypeLogData: item.TypeLogData,
+            CurveDescription: item.CurveDescription,
+            Mnemonic: item.Mnemonic,
+            IsIndex: item.IsIndex,
+            SaveInterval: item.SaveInterval,
+            IsArray: item.IsArray,
+            IsArrayEnable: item.IsArrayEnable,
+            IsEnabled: item.IsEnabled,
+            IndexComponentSource: item.IndexComponent && item.IndexComponent.SourceComponents.length > 0
+                ? item.IndexComponent.SourceComponents[0].Source
+                : 'N/A',
+            IndexComponentName: item.IndexComponent && item.IndexComponent.SourceComponents.length > 0
+                ? item.IndexComponent.SourceComponents[0].Name
+                : 'N/A',
+            ValueComponentSource: item.ValueComponent && item.ValueComponent.SourceComponents.length > 0
+                ? item.ValueComponent.SourceComponents[0].Source
+                : 'N/A',
+            ValueComponentName: item.ValueComponent && item.ValueComponent.SourceComponents.length > 0
+                ? item.ValueComponent.SourceComponents[0].Name
+                : 'N/A'
+        };
+    });
+
+    // Crear la hoja de Excel sin las columnas vacías (IndexCompor y ValueCompor)
+    const worksheet = XLSX.utils.json_to_sheet(processedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
 
