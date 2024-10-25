@@ -1,8 +1,8 @@
 function displayData(data) {
-    jsonData = data;  // Guardar el JSON en la variable global
+    jsonData = data;
 
     const tableContainer = document.getElementById('tableContainer');
-    tableContainer.innerHTML = '';  // Limpiar contenido previo
+    tableContainer.innerHTML = '';
 
     if (data.length === 0) {
         tableContainer.innerHTML = '<p>No hay datos para mostrar.</p>';
@@ -17,12 +17,10 @@ function displayData(data) {
     const headers = Object.keys(data[0]);
     const headerRow = document.createElement('tr');
 
-    // Agregar un encabezado para el botón de eliminar
     const thDelete = document.createElement('th');
-    thDelete.textContent = 'Acciones';  // Columna para los botones de eliminar
+    thDelete.textContent = 'Acciones';
     headerRow.appendChild(thDelete);
 
-    // Agregar las columnas del JSON como encabezados
     headers.forEach(header => {
         const th = document.createElement('th');
         th.textContent = header;
@@ -34,13 +32,12 @@ function displayData(data) {
     data.forEach((item, rowIndex) => {
         const row = document.createElement('tr');
 
-        // Crear celda para el botón de eliminar al principio de la fila
         const deleteTd = document.createElement('td');
         const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '<i class="bi bi-trash"></i>'; // Icono de basura de Bootstrap
-        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm'); // Clase de Bootstrap para estilizar el botón
+        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
         deleteButton.onclick = function () {
-            deleteRow(rowIndex);  // Llamar a la función para eliminar la fila
+            deleteRow(rowIndex);
         };
         deleteTd.appendChild(deleteButton);
         row.appendChild(deleteTd);
@@ -54,33 +51,33 @@ function displayData(data) {
                     const sourceEntries = component.SourceComponents.map(c => `${c.Source} ${c.Name}`).join(', ');
                     td.textContent = sourceEntries;
 
-                    td.contentEditable = true;  // Hacer la celda editable
+                    td.contentEditable = true;
                     td.addEventListener('input', function () {
                         const sources = td.textContent.split(',').map(entry => {
                             const parts = entry.trim().split(' ');
-                            return { Source: parts[0], Name: parts[1] }; // Ajustar el formato esperado
+                            return { Source: parts[0], Name: parts[1] };
                         });
-                        jsonData[rowIndex][header].SourceComponents = sources;  // Actualizar el JSON
-                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
+                        jsonData[rowIndex][header].SourceComponents = sources;
+                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]);
                     });
                 } else {
                     td.textContent = 'N/A';
-                    td.contentEditable = true; // Hacer la celda editable
+                    td.contentEditable = true;
                     td.addEventListener('input', function () {
                         const sources = td.textContent.split(',').map(entry => {
                             const parts = entry.trim().split(' ');
-                            return { Source: parts[0], Name: parts[1] }; // Ajustar el formato esperado
+                            return { Source: parts[0], Name: parts[1] };
                         });
-                        jsonData[rowIndex][header].SourceComponents = sources;  // Actualizar el JSON
-                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
+                        jsonData[rowIndex][header].SourceComponents = sources;
+                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]);
                     });
                 }
             } else if (header === 'Formula') {
-                td.textContent = item[header] || ''; // Mostrar el valor de Formula
-                td.contentEditable = true; // Hacer la celda editable
+                td.textContent = item[header] || '';
+                td.contentEditable = true;
                 td.addEventListener('input', function () {
-                    jsonData[rowIndex][header] = td.textContent; // Guardar cambios en la Formula
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
+                    jsonData[rowIndex][header] = td.textContent;
+                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]);
                 });
             } else if (typeof item[header] === 'boolean') {
                 const checkbox = document.createElement('input');
@@ -88,7 +85,7 @@ function displayData(data) {
                 checkbox.checked = item[header];
                 checkbox.addEventListener('change', function () {
                     jsonData[rowIndex][header] = checkbox.checked;
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
+                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]);
                 });
                 td.appendChild(checkbox);
             } else {
@@ -96,7 +93,7 @@ function displayData(data) {
                 td.contentEditable = true;
                 td.addEventListener('input', function () {
                     jsonData[rowIndex][header] = td.textContent;
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
+                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]);
                 });
             }
 
@@ -113,13 +110,13 @@ function displayData(data) {
 
 function deleteRow(index) {
     if (confirm('¿Estás seguro de que quieres eliminar esta fila?')) {
-        jsonData.splice(index, 1);  // Eliminar el elemento del array JSON
-        displayData(jsonData);  // Recargar la tabla con los datos actualizados
+        jsonData.splice(index, 1);
+        displayData(jsonData);
     }
 }
 
 function addRow() {
-    const newRow = {  // Crear un nuevo objeto para la nueva fila
+    const newRow = {
         Uid: '',
         Unit: 'n/a',
         TypeLogData: 0,
@@ -142,13 +139,12 @@ function addRow() {
         IsEnabled: false
     };
 
-    jsonData.push(newRow);  // Agregar la nueva fila al JSON
-    displayData(jsonData);  // Recargar la tabla
-    console.log('Fila agregada:', newRow); // Mensaje de depuración
+    jsonData.push(newRow);
+    displayData(jsonData);
+    console.log('Fila agregada:', newRow);
 }
 
 function saveJson() {
-    // Comprobar y mostrar el contenido de SourceComponents antes de guardar
     jsonData.forEach(item => {
         console.log('Guardando datos para el UID:', item.Uid);
         console.log('IndexComponent SourceComponents:', item.IndexComponent.SourceComponents);
@@ -159,18 +155,16 @@ function saveJson() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'edited_data.curvedefs';  // Nombre del archivo a descargar
+    a.download = 'edited_data.curvedefs';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);  // Liberar el objeto URL
+    URL.revokeObjectURL(url);
 }
 
 function exportToXlsx() {
     const worksheet = XLSX.utils.json_to_sheet(jsonData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
-
-    // Generar archivo y descargar
     XLSX.writeFile(workbook, 'datos.xlsx');
 }

@@ -3,7 +3,6 @@ body {
     margin: 0;
     padding: 20px;
     overflow-x: hidden;
-    /* Evitar desplazamiento horizontal de todo el cuerpo */
 }
 
 h1 {
@@ -13,44 +12,47 @@ h1 {
 button {
     margin: 10px;
     padding: 8px 15px;
-    /* Ajustar el espaciado interno */
     font-size: 14px;
-    /* Disminuir tamaño de fuente */
 }
 
 #tableContainer {
     overflow-x: auto;
-    /* Activar desplazamiento horizontal */
     margin-top: 20px;
     padding: 0 20px;
-    /* Agregar más margen a los lados del contenedor de la tabla */
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
-    /* Ajustar tamaño de fuente de la tabla */
     min-width: 600px;
-    /* Establecer un ancho mínimo para la tabla */
 }
 
 th,
 td {
     padding: 4px;
-    /* Reducir espaciado interno de celdas */
     text-align: left;
     word-wrap: break-word;
-    max-width: 100px;
-    /* Ajustar el ancho según sea necesario */
+    max-width: 300px;
     overflow: hidden;
-    /* Evitar desbordamiento */
     text-overflow: ellipsis;
-    /* Mostrar puntos suspensivos si el texto es demasiado largo */
     white-space: nowrap;
-    /* Evitar el salto de línea dentro de la celda */
+    transition: max-width 0.3s ease;
 }
 
+/* Estilos cuando el usuario está editando una celda */
+td[contenteditable="true"]:focus {
+    max-width: none;
+    /* Elimina las restricciones de ancho al editar */
+    white-space: normal;
+    /* Permite el ajuste de texto en múltiples líneas */
+    overflow: visible;
+    /* Permite ver el contenido completo */
+    outline: 2px solid #007bff;
+    /* Añade un borde visual para indicar edición */
+}
+
+/* Mantén los otros estilos */
 th {
     background-color: #f2f2f2;
 }
@@ -59,30 +61,23 @@ tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/* Estilos para pantallas pequeñas */
 @media screen and (max-width: 600px) {
     body {
         padding: 10px;
-        /* Reducir espaciado en el cuerpo */
     }
 
     button {
         padding: 5px 10px;
-        /* Ajustar el espaciado interno de botones en pantallas pequeñas */
         font-size: 12px;
-        /* Reducir tamaño de fuente en botones */
     }
 
     table {
         font-size: 12px;
-        /* Reducir tamaño de fuente de la tabla */
     }
 
     th,
     td {
         padding: 6px;
-        /* Reducir espaciado interno de celdas en pantallas pequeñas */
         max-width: 70px;
-        /* Ajustar el ancho según sea necesario en pantallas pequeñas */
     }
 }
