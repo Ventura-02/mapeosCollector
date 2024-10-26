@@ -1,4 +1,4 @@
-let jsonData = [];  // Definir jsonData a nivel global
+let jsonData = [];
 
 function loadJson() {
     const fileInput = document.getElementById('fileInput');
@@ -11,9 +11,9 @@ function loadJson() {
         reader.onload = function (e) {
             const content = e.target.result;
             try {
-                jsonData = JSON.parse(content); // Parsear el contenido como JSON
-                displayData(jsonData); // Mostrar los datos en la tabla
-                document.getElementById('addRowButton').style.display = 'block'; // Mostrar el botón de añadir fila
+                jsonData = JSON.parse(content);
+                displayData(jsonData);
+                document.getElementById('addRowButton').style.display = 'block';
             } catch (error) {
                 alert('Error al cargar el archivo: ' + error.message);
             }

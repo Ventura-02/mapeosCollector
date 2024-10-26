@@ -14,20 +14,22 @@ function displayData(data) {
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
-    const headers = Object.keys(data[0]);
     const headerRow = document.createElement('tr');
-
-    // Agregar un encabezado para el botón de eliminar
-    const thDelete = document.createElement('th');
-    thDelete.textContent = 'Acciones';  // Columna para los botones de eliminar
-    headerRow.appendChild(thDelete);
-
-    // Agregar las columnas del JSON como encabezados
-    headers.forEach(header => {
-        const th = document.createElement('th');
-        th.textContent = header;
-        headerRow.appendChild(th);
-    });
+    headerRow.appendChild(document.createElement('th')).textContent = 'Acciones';  // Columna para los botones de eliminar
+    headerRow.appendChild(document.createElement('th')).textContent = 'Uid';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Unit';
+    headerRow.appendChild(document.createElement('th')).textContent = 'TypeLogData';
+    headerRow.appendChild(document.createElement('th')).textContent = 'CurveDescription';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Mnemonic';
+    headerRow.appendChild(document.createElement('th')).textContent = 'IsIndex';
+    headerRow.appendChild(document.createElement('th')).textContent = 'SaveInterval';
+    headerRow.appendChild(document.createElement('th')).textContent = 'IsEnabled';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Index Source';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Index Name';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Index Formula';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Value Source';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Value Name';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Value Formula';
 
     thead.appendChild(headerRow);
 
@@ -45,62 +47,61 @@ function displayData(data) {
         deleteTd.appendChild(deleteButton);
         row.appendChild(deleteTd);
 
-        headers.forEach(header => {
-            const td = document.createElement('td');
+        // Agregar valores de las propiedades del objeto en el nuevo orden
+        const editableFields = [
+            item.Uid,
+            item.Unit,
+            item.TypeLogData,
+            item.CurveDescription,
+            item.Mnemonic,
+            item.IsIndex,
+            item.SaveInterval,
+            item.IsEnabled,
+            item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source : 'N/A',
+            item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name : 'N/A',
+            item.IndexComponent.Formula ? item.IndexComponent.Formula : '',
+            item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source : 'N/A',
+            item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name : 'N/A',
+            item.ValueComponent.Formula ? item.ValueComponent.Formula : ''
+        ];
 
-            if (header === 'IndexComponent' || header === 'ValueComponent') {
-                const component = item[header];
-                if (component && component.SourceComponents.length > 0) {
-                    const sourceEntries = component.SourceComponents.map(c => `${c.Source} ${c.Name}`).join(', ');
-                    td.textContent = sourceEntries;
+        editableFields.forEach((value, cellIndex) => {
+            const cell = document.createElement('td');
 
-                    td.contentEditable = true;  // Hacer la celda editable
-                    td.addEventListener('input', function () {
-                        const sources = td.textContent.split(',').map(entry => {
-                            const parts = entry.trim().split(' ');
-                            return { Source: parts[0], Name: parts[1] }; // Ajustar el formato esperado
-                        });
-                        jsonData[rowIndex][header].SourceComponents = sources;  // Actualizar el JSON
-                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
-                    });
-                } else {
-                    td.textContent = 'N/A';
-                    td.contentEditable = true; // Hacer la celda editable
-                    td.addEventListener('input', function () {
-                        const sources = td.textContent.split(',').map(entry => {
-                            const parts = entry.trim().split(' ');
-                            return { Source: parts[0], Name: parts[1] }; // Ajustar el formato esperado
-                        });
-                        jsonData[rowIndex][header].SourceComponents = sources;  // Actualizar el JSON
-                        console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
-                    });
-                }
-            } else if (header === 'Formula') {
-                td.textContent = item[header] || ''; // Mostrar el valor de Formula
-                td.contentEditable = true; // Hacer la celda editable
-                td.addEventListener('input', function () {
-                    jsonData[rowIndex][header] = td.textContent; // Guardar cambios en la Formula
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
-                });
-            } else if (typeof item[header] === 'boolean') {
+            // Manejar las celdas de IsIndex e IsEnabled como checkboxes
+            if (cellIndex === 5 || cellIndex === 7) { // IsIndex o IsEnabled
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.checked = item[header];
-                checkbox.addEventListener('change', function () {
-                    jsonData[rowIndex][header] = checkbox.checked;
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
-                });
-                td.appendChild(checkbox);
+                checkbox.checked = value === true; // Asegúrate de que sea un booleano
+                checkbox.oninput = function () { // Corregido aquí
+                    switch (cellIndex) {
+                        case 5: item.IsIndex = checkbox.checked; break;
+                        case 7: item.IsEnabled = checkbox.checked; break;
+                    }
+                };
+                cell.appendChild(checkbox);
             } else {
-                td.textContent = item[header];
-                td.contentEditable = true;
-                td.addEventListener('input', function () {
-                    jsonData[rowIndex][header] = td.textContent;
-                    console.log(`Actualizando ${header}:`, jsonData[rowIndex][header]); // Mensaje de depuración
-                });
+                cell.textContent = value;
+                cell.contentEditable = 'true'; // Permitir edición de la celda
+                cell.oninput = function () { // Actualizar el objeto JSON cuando se realiza un cambio
+                    switch (cellIndex) {
+                        case 0: item.Uid = cell.textContent; break;
+                        case 1: item.Unit = cell.textContent; break;
+                        case 2: item.TypeLogData = cell.textContent; break;
+                        case 3: item.CurveDescription = cell.textContent; break;
+                        case 4: item.Mnemonic = cell.textContent; break;
+                        case 6: item.SaveInterval = cell.textContent; break;
+                        case 8: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
+                        case 9: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
+                        case 10: item.IndexComponent.Formula = cell.textContent; break;
+                        case 11: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
+                        case 12: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
+                        case 13: item.ValueComponent.Formula = cell.textContent; break;
+                    }
+                };
             }
 
-            row.appendChild(td);
+            row.appendChild(cell);
         });
 
         tbody.appendChild(row);
@@ -147,23 +148,59 @@ function addRow() {
     console.log('Fila agregada:', newRow); // Mensaje de depuración
 }
 
-function saveJson() {
-    // Comprobar y mostrar el contenido de SourceComponents antes de guardar
-    jsonData.forEach(item => {
-        console.log('Guardando datos para el UID:', item.Uid);
-        console.log('IndexComponent SourceComponents:', item.IndexComponent.SourceComponents);
-        console.log('ValueComponent SourceComponents:', item.ValueComponent.SourceComponents);
+function saveData() {
+    const tableRows = document.querySelectorAll('#tableContainer table tbody tr');
+    const savedData = []; // Arreglo para almacenar los datos guardados
+
+    tableRows.forEach((row, rowIndex) => {
+        const cells = row.cells;
+
+        // Crear un nuevo objeto basado en la estructura deseada
+        const item = {
+            Uid: cells[1].textContent,
+            Unit: cells[2].textContent,
+            TypeLogData: parseInt(cells[3].textContent) || 0, // Asegurarse de que sea un número
+            CurveDescription: cells[4].textContent,
+            Mnemonic: cells[5].textContent,
+            IsIndex: cells[6].querySelector('input[type="checkbox"]').checked, // Obtener el estado del checkbox
+            IndexComponent: {
+                SourceComponents: [
+                    {
+                        Source: cells[9].textContent,
+                        Name: cells[10].textContent,
+                    }
+                ],
+                Formula: cells[11].textContent || null,
+                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
+            },
+            ValueComponent: {
+                SourceComponents: [
+                    {
+                        Source: cells[12].textContent,
+                        Name: cells[13].textContent,
+                    }
+                ],
+                Formula: cells[14].textContent || null,
+                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
+            },
+            SaveInterval: parseFloat(cells[7].textContent) || 0.0, // Asegurarse de que sea un número
+            IsArray: false, // Puedes ajustar esto según tu lógica
+            IsArrayEnble: true, // Puedes ajustar esto según tu lógica
+            IsEnabled: cells[8].querySelector('input[type="checkbox"]').checked // Obtener el estado del checkbox
+        };
+
+        savedData.push(item); // Agregar el objeto a la lista de datos guardados
     });
 
-    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    // Convertir savedData a JSON y descargar como archivo
+    const jsonStr = JSON.stringify(savedData, null, 2); // Usar un formato legible
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'edited_data.json';  // Nombre del archivo a descargar
-    document.body.appendChild(a);
+    a.download = 'mapeo.curvedefs';
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);  // Liberar el objeto URL
+    URL.revokeObjectURL(url);
 }
 
 function exportToXlsx() {
