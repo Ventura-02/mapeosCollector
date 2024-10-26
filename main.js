@@ -26,10 +26,10 @@ function displayData(data) {
     headerRow.appendChild(document.createElement('th')).textContent = 'IsEnabled';
     headerRow.appendChild(document.createElement('th')).textContent = 'Index Source';
     headerRow.appendChild(document.createElement('th')).textContent = 'Index Name';
+    headerRow.appendChild(document.createElement('th')).textContent = 'Index Formula';
     headerRow.appendChild(document.createElement('th')).textContent = 'Value Source';
     headerRow.appendChild(document.createElement('th')).textContent = 'Value Name';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Index Formula'; // Nueva columna para Formula de IndexComponent
-    headerRow.appendChild(document.createElement('th')).textContent = 'Value Formula'; // Nueva columna para Formula de ValueComponent
+    headerRow.appendChild(document.createElement('th')).textContent = 'Value Formula';
 
     thead.appendChild(headerRow);
 
@@ -47,7 +47,7 @@ function displayData(data) {
         deleteTd.appendChild(deleteButton);
         row.appendChild(deleteTd);
 
-        // Agregar valores de las propiedades del objeto y hacer las celdas editables
+        // Agregar valores de las propiedades del objeto en el nuevo orden
         const editableFields = [
             item.Uid,
             item.Unit,
@@ -59,58 +59,48 @@ function displayData(data) {
             item.IsEnabled,
             item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source : 'N/A',
             item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name : 'N/A',
+            item.IndexComponent.Formula ? item.IndexComponent.Formula : '',
             item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source : 'N/A',
             item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name : 'N/A',
-            item.IndexComponent.Formula ? item.IndexComponent.Formula : '', // Mostrar la fórmula de IndexComponent
-            item.ValueComponent.Formula ? item.ValueComponent.Formula : '' // Mostrar la fórmula de ValueComponent
+            item.ValueComponent.Formula ? item.ValueComponent.Formula : ''
         ];
 
         editableFields.forEach((value, cellIndex) => {
             const cell = document.createElement('td');
-            cell.contentEditable = true; // Hacer la celda editable
-            cell.textContent = value;
 
-            // Actualizar el JSON al editar la celda
-            cell.addEventListener('input', function () {
-                switch (cellIndex) {
-                    case 0: item.Uid = cell.textContent; break;
-                    case 1: item.Unit = cell.textContent; break;
-                    case 2: item.TypeLogData = cell.textContent; break;
-                    case 3: item.CurveDescription = cell.textContent; break;
-                    case 4: item.Mnemonic = cell.textContent; break;
-                    case 5: item.IsIndex = cell.textContent === 'true'; break;
-                    case 6: item.SaveInterval = cell.textContent; break;
-                    case 7: item.IsEnabled = cell.textContent === 'true'; break;
-                    case 8:
-                        if (!item.IndexComponent) item.IndexComponent = { SourceComponents: [] };
-                        if (!item.IndexComponent.SourceComponents[0]) item.IndexComponent.SourceComponents[0] = { Source: '', Name: '' };
-                        item.IndexComponent.SourceComponents[0].Source = cell.textContent;
-                        break;
-                    case 9:
-                        if (!item.IndexComponent) item.IndexComponent = { SourceComponents: [] };
-                        if (!item.IndexComponent.SourceComponents[0]) item.IndexComponent.SourceComponents[0] = { Source: '', Name: '' };
-                        item.IndexComponent.SourceComponents[0].Name = cell.textContent;
-                        break;
-                    case 10:
-                        if (!item.ValueComponent) item.ValueComponent = { SourceComponents: [] };
-                        if (!item.ValueComponent.SourceComponents[0]) item.ValueComponent.SourceComponents[0] = { Source: '', Name: '' };
-                        item.ValueComponent.SourceComponents[0].Source = cell.textContent;
-                        break;
-                    case 11:
-                        if (!item.ValueComponent) item.ValueComponent = { SourceComponents: [] };
-                        if (!item.ValueComponent.SourceComponents[0]) item.ValueComponent.SourceComponents[0] = { Source: '', Name: '' };
-                        item.ValueComponent.SourceComponents[0].Name = cell.textContent;
-                        break;
-                    case 12:
-                        if (!item.IndexComponent) item.IndexComponent = {};
-                        item.IndexComponent.Formula = cell.textContent;
-                        break;
-                    case 13:
-                        if (!item.ValueComponent) item.ValueComponent = {};
-                        item.ValueComponent.Formula = cell.textContent;
-                        break;
-                }
-            });
+            // Manejar las celdas de IsIndex e IsEnabled como checkboxes
+            if (cellIndex === 5 || cellIndex === 7) { // IsIndex o IsEnabled
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = value === true; // Asegúrate de que sea un booleano
+                checkbox.oninput = function () { // Corregido aquí
+                    switch (cellIndex) {
+                        case 5: item.IsIndex = checkbox.checked; break;
+                        case 7: item.IsEnabled = checkbox.checked; break;
+                    }
+                };
+                cell.appendChild(checkbox);
+            } else {
+                cell.textContent = value;
+                cell.contentEditable = 'true'; // Permitir edición de la celda
+                cell.oninput = function () { // Actualizar el objeto JSON cuando se realiza un cambio
+                    switch (cellIndex) {
+                        case 0: item.Uid = cell.textContent; break;
+                        case 1: item.Unit = cell.textContent; break;
+                        case 2: item.TypeLogData = cell.textContent; break;
+                        case 3: item.CurveDescription = cell.textContent; break;
+                        case 4: item.Mnemonic = cell.textContent; break;
+                        case 6: item.SaveInterval = cell.textContent; break;
+                        case 8: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
+                        case 9: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
+                        case 10: item.IndexComponent.Formula = cell.textContent; break;
+                        case 11: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
+                        case 12: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
+                        case 13: item.ValueComponent.Formula = cell.textContent; break;
+                    }
+                };
+            }
+
             row.appendChild(cell);
         });
 
@@ -160,38 +150,50 @@ function addRow() {
 
 function saveData() {
     const tableRows = document.querySelectorAll('#tableContainer table tbody tr');
-    jsonData.forEach((item, rowIndex) => {
-        const row = tableRows[rowIndex];
+    const savedData = []; // Arreglo para almacenar los datos guardados
+
+    tableRows.forEach((row, rowIndex) => {
         const cells = row.cells;
 
-        item.Uid = cells[1].textContent;
-        item.Unit = cells[2].textContent;
-        item.TypeLogData = cells[3].textContent;
-        item.CurveDescription = cells[4].textContent;
-        item.Mnemonic = cells[5].textContent;
-        item.IsIndex = cells[6].textContent === 'true';
-        item.SaveInterval = cells[7].textContent;
-        item.IsEnabled = cells[8].textContent === 'true';
-
-        // Actualizar IndexComponent.SourceComponents
-        item.IndexComponent.SourceComponents = [
-            {
-                Source: cells[9].textContent,
-                Name: cells[10].textContent,
+        // Crear un nuevo objeto basado en la estructura deseada
+        const item = {
+            Uid: cells[1].textContent,
+            Unit: cells[2].textContent,
+            TypeLogData: parseInt(cells[3].textContent) || 0, // Asegurarse de que sea un número
+            CurveDescription: cells[4].textContent,
+            Mnemonic: cells[5].textContent,
+            IsIndex: cells[6].querySelector('input[type="checkbox"]').checked, // Obtener el estado del checkbox
+            IndexComponent: {
+                SourceComponents: [
+                    {
+                        Source: cells[9].textContent,
+                        Name: cells[10].textContent,
+                    }
+                ],
+                Formula: cells[11].textContent || null,
+                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
             },
-        ];
-
-        // Actualizar ValueComponent.SourceComponents
-        item.ValueComponent.SourceComponents = [
-            {
-                Source: cells[11].textContent,
-                Name: cells[12].textContent,
+            ValueComponent: {
+                SourceComponents: [
+                    {
+                        Source: cells[12].textContent,
+                        Name: cells[13].textContent,
+                    }
+                ],
+                Formula: cells[14].textContent || null,
+                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
             },
-        ];
+            SaveInterval: parseFloat(cells[7].textContent) || 0.0, // Asegurarse de que sea un número
+            IsArray: false, // Puedes ajustar esto según tu lógica
+            IsArrayEnble: true, // Puedes ajustar esto según tu lógica
+            IsEnabled: cells[8].querySelector('input[type="checkbox"]').checked // Obtener el estado del checkbox
+        };
+
+        savedData.push(item); // Agregar el objeto a la lista de datos guardados
     });
 
-    // Convertir jsonData a JSON y descargar como archivo
-    const jsonStr = JSON.stringify(jsonData);
+    // Convertir savedData a JSON y descargar como archivo
+    const jsonStr = JSON.stringify(savedData, null, 2); // Usar un formato legible
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
