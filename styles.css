@@ -40,6 +40,9 @@ td {
     transition: max-width 0.3s ease;
 }
 
+
+
+
 /* Estilos cuando el usuario está editando una celda */
 td[contenteditable="true"]:focus {
     max-width: none;
