@@ -40,22 +40,30 @@ td {
     transition: max-width 0.3s ease;
 }
 
-
-
-
-/* Estilos cuando el usuario está editando una celda */
-td[contenteditable="true"]:focus {
-    max-width: none;
-    /* Elimina las restricciones de ancho al editar */
-    white-space: normal;
-    /* Permite el ajuste de texto en múltiples líneas */
-    overflow: visible;
-    /* Permite ver el contenido completo */
-    outline: 2px solid #007bff;
-    /* Añade un borde visual para indicar edición */
+.table-row {
+    position: relative;
 }
 
-/* Mantén los otros estilos */
+.add-row-button {
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    z-index: 10;
+}
+
+.table-row:hover .add-row-button {
+    display: block;
+}
+
+td[contenteditable="true"]:focus {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+    outline: 2px solid #007bff;
+}
+
 th {
     background-color: #f2f2f2;
 }
@@ -82,5 +90,9 @@ tr:nth-child(even) {
     td {
         padding: 6px;
         max-width: 70px;
+    }
+
+    .ag-row {
+        height: 10px;
     }
 }

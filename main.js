@@ -1,126 +1,143 @@
+let gridInstance;
+let jsonData = [];
 function displayData(data) {
-    jsonData = data;  // Guardar el JSON en la variable global
-
-    const tableContainer = document.getElementById('tableContainer');
-    tableContainer.innerHTML = '';  // Limpiar contenido previo
-
-    if (data.length === 0) {
-        tableContainer.innerHTML = '<p>No hay datos para mostrar.</p>';
-        return;
-    }
-
-    const table = document.createElement('table');
-    table.border = '1';
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-
-    const headerRow = document.createElement('tr');
-    headerRow.appendChild(document.createElement('th')).textContent = 'Acciones';  // Columna para los botones de eliminar
-    headerRow.appendChild(document.createElement('th')).textContent = 'Uid';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Unit';
-    headerRow.appendChild(document.createElement('th')).textContent = 'TypeLogData';
-    headerRow.appendChild(document.createElement('th')).textContent = 'CurveDescription';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Mnemonic';
-    headerRow.appendChild(document.createElement('th')).textContent = 'IsIndex';
-    headerRow.appendChild(document.createElement('th')).textContent = 'SaveInterval';
-    headerRow.appendChild(document.createElement('th')).textContent = 'IsEnabled';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Index Source';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Index Name';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Index Formula';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Value Source';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Value Name';
-    headerRow.appendChild(document.createElement('th')).textContent = 'Value Formula';
-
-    thead.appendChild(headerRow);
-
-    data.forEach((item, rowIndex) => {
-        const row = document.createElement('tr');
-
-        // Crear celda para el botón de eliminar al principio de la fila
-        const deleteTd = document.createElement('td');
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '<i class="bi bi-trash"></i>'; // Icono de basura de Bootstrap
-        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm'); // Clase de Bootstrap para estilizar el botón
-        deleteButton.onclick = function () {
-            deleteRow(rowIndex);  // Llamar a la función para eliminar la fila
-        };
-        deleteTd.appendChild(deleteButton);
-        row.appendChild(deleteTd);
-
-        // Agregar valores de las propiedades del objeto en el nuevo orden
-        const editableFields = [
-            item.Uid,
-            item.Unit,
-            item.TypeLogData,
-            item.CurveDescription,
-            item.Mnemonic,
-            item.IsIndex,
-            item.SaveInterval,
-            item.IsEnabled,
-            item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source : 'N/A',
-            item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name : 'N/A',
-            item.IndexComponent.Formula ? item.IndexComponent.Formula : '',
-            item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source : 'N/A',
-            item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name : 'N/A',
-            item.ValueComponent.Formula ? item.ValueComponent.Formula : ''
-        ];
-
-        editableFields.forEach((value, cellIndex) => {
-            const cell = document.createElement('td');
-
-            // Manejar las celdas de IsIndex e IsEnabled como checkboxes
-            if (cellIndex === 5 || cellIndex === 7) { // IsIndex o IsEnabled
+    const columnDefs = [
+        { width: 50, rowDrag: true, cellRenderer: () => '<i class="bi bi-arrows-move"></i>' },
+        { headerName: 'Uid', field: 'Uid', editable: true },
+        { headerName: 'Unit', field: 'Unit', editable: true },
+        { headerName: 'TypeLogData', field: 'TypeLogData', editable: true },
+        { headerName: 'CurveDescription', field: 'CurveDescription', editable: true },
+        { headerName: 'Mnemonic', field: 'Mnemonic', editable: true },
+        { headerName: 'IsIndex', field: 'IsIndex', editable: true, cellRenderer: 'checkboxCellRenderer' },
+        { headerName: 'SaveInterval', field: 'SaveInterval', editable: true },
+        { headerName: 'IsEnabled', field: 'IsEnabled', editable: true, cellRenderer: 'checkboxCellRenderer' },
+        {
+            headerName: 'Index Source',
+            field: 'IndexComponent.SourceComponents[0].Source',
+            editable: true,
+            valueGetter: params => params.data.IndexComponent.SourceComponents[0]?.Source || 'N/A',
+            valueSetter: function (params) {
+                if (!params.data.IndexComponent.SourceComponents[0]) {
+                    params.data.IndexComponent.SourceComponents[0] = {};
+                }
+                params.data.IndexComponent.SourceComponents[0].Source = params.newValue;
+                return true;
+            }
+        },
+        {
+            headerName: 'Index Name',
+            field: 'IndexComponent.SourceComponents[0].Name',
+            editable: true,
+            valueGetter: params => params.data.IndexComponent.SourceComponents[0]?.Name || 'N/A',
+            valueSetter: function (params) {
+                if (!params.data.IndexComponent.SourceComponents[0]) {
+                    params.data.IndexComponent.SourceComponents[0] = {};
+                }
+                params.data.IndexComponent.SourceComponents[0].Name = params.newValue;
+                return true;
+            }
+        },
+        { headerName: 'Index Formula', field: 'IndexComponent.Formula', editable: true },
+        {
+            headerName: 'Value Source',
+            field: 'ValueComponent.SourceComponents[0].Source',
+            editable: true,
+            valueGetter: params => params.data.ValueComponent.SourceComponents[0]?.Source || 'N/A',
+            valueSetter: function (params) {
+                if (!params.data.ValueComponent.SourceComponents[0]) {
+                    params.data.ValueComponent.SourceComponents[0] = {};
+                }
+                params.data.ValueComponent.SourceComponents[0].Source = params.newValue;
+                return true;
+            }
+        },
+        {
+            headerName: 'Value Name',
+            field: 'ValueComponent.SourceComponents[0].Name',
+            editable: true,
+            valueGetter: params => params.data.ValueComponent.SourceComponents[0]?.Name || 'N/A',
+            valueSetter: function (params) {
+                if (!params.data.ValueComponent.SourceComponents[0]) {
+                    params.data.ValueComponent.SourceComponents[0] = {};
+                }
+                params.data.ValueComponent.SourceComponents[0].Name = params.newValue;
+                return true;
+            }
+        },
+        { headerName: 'Value Formula', field: 'ValueComponent.Formula', editable: true },
+        {
+            headerName: 'Actions',
+            cellRenderer: function (params) {
+                const container = document.createElement('div');
+                const addButton = document.createElement('button');
+                addButton.innerHTML = '<i class="fas fa-plus"></i>';
+                addButton.classList.add('add-row-button', 'btn', 'btn-success', 'btn-sm');
+                addButton.style.padding = '2px 5px';
+                addButton.onclick = function () {
+                    addRowAt(params.node.rowIndex);
+                };
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteButton.classList.add('delete-row-button', 'btn', 'btn-danger', 'btn-sm');
+                deleteButton.style.padding = '2px 5px';
+                deleteButton.onclick = function () {
+                    deleteRow(params.node.rowIndex);
+                };
+                container.appendChild(addButton);
+                container.appendChild(deleteButton);
+                return container;
+            }
+        }
+    ];
+    const gridOptions = {
+        columnDefs: columnDefs,
+        rowData: data,
+        rowDragManaged: true,
+        animateRows: true,
+        components: {
+            checkboxCellRenderer: function (params) {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.checked = value === true; // Asegúrate de que sea un booleano
-                checkbox.oninput = function () { // Corregido aquí
-                    switch (cellIndex) {
-                        case 5: item.IsIndex = checkbox.checked; break;
-                        case 7: item.IsEnabled = checkbox.checked; break;
-                    }
+                checkbox.checked = params.value;
+                checkbox.onchange = function () {
+                    params.node.setDataValue(params.colDef.field, checkbox.checked);
                 };
-                cell.appendChild(checkbox);
-            } else {
-                cell.textContent = value;
-                cell.contentEditable = 'true'; // Permitir edición de la celda
-                cell.oninput = function () { // Actualizar el objeto JSON cuando se realiza un cambio
-                    switch (cellIndex) {
-                        case 0: item.Uid = cell.textContent; break;
-                        case 1: item.Unit = cell.textContent; break;
-                        case 2: item.TypeLogData = cell.textContent; break;
-                        case 3: item.CurveDescription = cell.textContent; break;
-                        case 4: item.Mnemonic = cell.textContent; break;
-                        case 6: item.SaveInterval = cell.textContent; break;
-                        case 8: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
-                        case 9: item.IndexComponent.SourceComponents.length > 0 ? item.IndexComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
-                        case 10: item.IndexComponent.Formula = cell.textContent; break;
-                        case 11: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Source = cell.textContent : 'N/A'; break;
-                        case 12: item.ValueComponent.SourceComponents.length > 0 ? item.ValueComponent.SourceComponents[0].Name = cell.textContent : 'N/A'; break;
-                        case 13: item.ValueComponent.Formula = cell.textContent; break;
-                    }
-                };
+                return checkbox;
             }
-
-            row.appendChild(cell);
-        });
-
-        tbody.appendChild(row);
-    });
-
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    tableContainer.appendChild(table);
+        },
+        defaultColDef: {
+            resizable: true,
+            sortable: false,
+            filter: false,
+            editable: true
+        },
+        suppressDragLeaveHidesColumns: true,
+        stopEditingWhenCellsLoseFocus: true,
+        onFirstDataRendered: function (params) {
+            params.api.sizeColumnsToFit();
+            if (params.columnApi) {
+                const allColumnIds = [];
+                params.columnApi.getAllColumns().forEach(column => {
+                    allColumnIds.push(column.getId());
+                });
+                params.columnApi.autoSizeColumns(allColumnIds);
+            }
+        }
+    };
+    const tableContainer = document.getElementById('tableContainer');
+    if (gridInstance) {
+        gridInstance.destroy();
+    }
+    gridInstance = new agGrid.Grid(tableContainer, gridOptions);
 }
-
 function deleteRow(index) {
     if (confirm('¿Estás seguro de que quieres eliminar esta fila?')) {
-        jsonData.splice(index, 1);  // Eliminar el elemento del array JSON
-        displayData(jsonData);  // Recargar la tabla con los datos actualizados
+        jsonData.splice(index, 1);
+        displayData(jsonData);
     }
 }
-
 function addRow() {
-    const newRow = {  // Crear un nuevo objeto para la nueva fila
+    const newRow = {
         Uid: '',
         Unit: 'n/a',
         TypeLogData: 0,
@@ -142,58 +159,16 @@ function addRow() {
         IsArrayEnble: true,
         IsEnabled: false
     };
-
-    jsonData.push(newRow);  // Agregar la nueva fila al JSON
-    displayData(jsonData);  // Recargar la tabla
-    console.log('Fila agregada:', newRow); // Mensaje de depuración
+    jsonData.push(newRow);
+    displayData(jsonData);
+    console.log('Fila agregada:', newRow);
 }
-
 function saveData() {
-    const tableRows = document.querySelectorAll('#tableContainer table tbody tr');
-    const savedData = []; // Arreglo para almacenar los datos guardados
-
-    tableRows.forEach((row, rowIndex) => {
-        const cells = row.cells;
-
-        // Crear un nuevo objeto basado en la estructura deseada
-        const item = {
-            Uid: cells[1].textContent,
-            Unit: cells[2].textContent,
-            TypeLogData: parseInt(cells[3].textContent) || 0, // Asegurarse de que sea un número
-            CurveDescription: cells[4].textContent,
-            Mnemonic: cells[5].textContent,
-            IsIndex: cells[6].querySelector('input[type="checkbox"]').checked, // Obtener el estado del checkbox
-            IndexComponent: {
-                SourceComponents: [
-                    {
-                        Source: cells[9].textContent,
-                        Name: cells[10].textContent,
-                    }
-                ],
-                Formula: cells[11].textContent || null,
-                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
-            },
-            ValueComponent: {
-                SourceComponents: [
-                    {
-                        Source: cells[12].textContent,
-                        Name: cells[13].textContent,
-                    }
-                ],
-                Formula: cells[14].textContent || null,
-                Filter: null // Asumiendo que no se usa, puedes ajustar esto si es necesario
-            },
-            SaveInterval: parseFloat(cells[7].textContent) || 0.0, // Asegurarse de que sea un número
-            IsArray: false, // Puedes ajustar esto según tu lógica
-            IsArrayEnble: true, // Puedes ajustar esto según tu lógica
-            IsEnabled: cells[8].querySelector('input[type="checkbox"]').checked // Obtener el estado del checkbox
-        };
-
-        savedData.push(item); // Agregar el objeto a la lista de datos guardados
+    const orderedData = [];
+    gridInstance.gridOptions.api.forEachNodeAfterFilterAndSort((node) => {
+        orderedData.push(node.data);
     });
-
-    // Convertir savedData a JSON y descargar como archivo
-    const jsonStr = JSON.stringify(savedData, null, 2); // Usar un formato legible
+    const jsonStr = JSON.stringify(orderedData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -202,9 +177,7 @@ function saveData() {
     a.click();
     URL.revokeObjectURL(url);
 }
-
 function exportToXlsx() {
-    // Crear una copia del JSON para modificar cómo se mostrarán los datos
     const processedData = jsonData.map(item => {
         return {
             Uid: item.Uid,
@@ -231,12 +204,8 @@ function exportToXlsx() {
                 : 'N/A'
         };
     });
-
-    // Crear la hoja de Excel sin las columnas vacías (IndexCompor y ValueCompor)
     const worksheet = XLSX.utils.json_to_sheet(processedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
-
-    // Generar archivo y descargar
     XLSX.writeFile(workbook, 'datos.xlsx');
 }
