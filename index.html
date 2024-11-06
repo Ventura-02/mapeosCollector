@@ -16,43 +16,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        #exportModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 1px solid black;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            opacity: 0;
-            z-index: 1000;
-        }
-
-        #exportModal.show {
-            display: block;
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        #modalOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        #modalOverlay.show {
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
@@ -71,6 +34,7 @@
     <div id="exportModal">
         <h3>Selecciona las columnas a exportar</h3>
         <div>
+            <button id="toggleSelectAll" onclick="toggleSelectAll()">Check/UnCheck Todo</button><br>
             <input type="checkbox" id="exportUid" checked> Uid<br>
             <input type="checkbox" id="exportUnit" checked> Unit<br>
             <input type="checkbox" id="exportTypeLogData" checked> TypeLogData<br>
@@ -87,6 +51,14 @@
         <button onclick="exportToXlsx()">Exportar</button>
         <button onclick="closeExportOptions()">Cancelar</button>
     </div>
+
+    <script>
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('#exportModal input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
+        }
+    </script>
 
     <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
     <script src="loadJson.js"></script>
