@@ -164,6 +164,10 @@ function addRow() {
     console.log('Fila agregada:', newRow);
 }
 function saveData() {
+    if (!jsonData || jsonData.length === 0) {
+        alert('No hay datos para guardar.');
+        return;
+    }
     const orderedData = [];
     gridInstance.gridOptions.api.forEachNodeAfterFilterAndSort((node) => {
         orderedData.push(node.data);
@@ -177,7 +181,12 @@ function saveData() {
     a.click();
     URL.revokeObjectURL(url);
 }
+
 function exportToXlsx() {
+    if (!jsonData || jsonData.length === 0) {
+        alert('No hay datos para exportar.');
+        return;
+    }
     const processedData = jsonData.map(item => {
         return {
             Uid: item.Uid,
@@ -209,3 +218,4 @@ function exportToXlsx() {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
     XLSX.writeFile(workbook, 'datos.xlsx');
 }
+
