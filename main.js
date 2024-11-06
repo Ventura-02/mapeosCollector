@@ -8,9 +8,9 @@ function displayData(data) {
         { headerName: 'TypeLogData', field: 'TypeLogData', editable: true },
         { headerName: 'CurveDescription', field: 'CurveDescription', editable: true },
         { headerName: 'Mnemonic', field: 'Mnemonic', editable: true },
-        { headerName: 'IsIndex', field: 'IsIndex', editable: true, cellRenderer: 'checkboxCellRenderer' },
+        { headerName: 'IsIndex', field: 'IsIndex', editable: false, cellRenderer: 'checkboxCellRenderer' },
         { headerName: 'SaveInterval', field: 'SaveInterval', editable: true },
-        { headerName: 'IsEnabled', field: 'IsEnabled', editable: true, cellRenderer: 'checkboxCellRenderer' },
+        { headerName: 'IsEnabled', field: 'IsEnabled', editable: false, cellRenderer: 'checkboxCellRenderer' },
         {
             headerName: 'Index Source',
             field: 'IndexComponent.SourceComponents[0].Source',
@@ -86,7 +86,7 @@ function displayData(data) {
                 container.appendChild(addButton);
                 container.appendChild(deleteButton);
                 return container;
-            }
+            }, editable: false
         }
     ];
     const gridOptions = {
@@ -181,41 +181,3 @@ function saveData() {
     a.click();
     URL.revokeObjectURL(url);
 }
-
-function exportToXlsx() {
-    if (!jsonData || jsonData.length === 0) {
-        alert('No hay datos para exportar.');
-        return;
-    }
-    const processedData = jsonData.map(item => {
-        return {
-            Uid: item.Uid,
-            Unit: item.Unit,
-            TypeLogData: item.TypeLogData,
-            CurveDescription: item.CurveDescription,
-            Mnemonic: item.Mnemonic,
-            IsIndex: item.IsIndex,
-            SaveInterval: item.SaveInterval,
-            IsArray: item.IsArray,
-            IsArrayEnable: item.IsArrayEnable,
-            IsEnabled: item.IsEnabled,
-            IndexComponentSource: item.IndexComponent && item.IndexComponent.SourceComponents.length > 0
-                ? item.IndexComponent.SourceComponents[0].Source
-                : 'N/A',
-            IndexComponentName: item.IndexComponent && item.IndexComponent.SourceComponents.length > 0
-                ? item.IndexComponent.SourceComponents[0].Name
-                : 'N/A',
-            ValueComponentSource: item.ValueComponent && item.ValueComponent.SourceComponents.length > 0
-                ? item.ValueComponent.SourceComponents[0].Source
-                : 'N/A',
-            ValueComponentName: item.ValueComponent && item.ValueComponent.SourceComponents.length > 0
-                ? item.ValueComponent.SourceComponents[0].Name
-                : 'N/A'
-        };
-    });
-    const worksheet = XLSX.utils.json_to_sheet(processedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
-    XLSX.writeFile(workbook, 'datos.xlsx');
-}
-

@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapeos Editables</title>
+    <title>Mapeos Collector</title>
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-alpine.css">
     <link rel="stylesheet" href="styles.css">
-    <!-- Asegúrate de que este enlace esté después de los estilos de AG Grid -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
         rel="stylesheet">
@@ -17,20 +16,82 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        #exportModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 1px solid black;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            z-index: 1000;
+        }
+
+        #exportModal.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #modalOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        #modalOverlay.show {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Mapeos Collector</h1>
     <button onclick="loadJson()">Cargar</button>
-    <button onclick="saveData()">Guardar</button>
-    <button onclick="exportToXlsx()">Exportar a Excel</button>
     <div id="fileNameDisplay"></div>
+    <button onclick="saveData()">Guardar</button>
+    <button onclick="showExportOptions()">Exportar a Excel</button>
     <input type="file" id="fileInput" style="display: none;">
     <div id="tableContainer" class="ag-theme-alpine" style="height: 400px; width: 100%;"></div>
     <button id="addRowButton" onclick="addRow()" style="display: none;">Agregar Fila</button>
+
+    <!-- Overlay for modal -->
+    <div id="modalOverlay"></div>
+    <!-- Modal for selecting columns to export -->
+    <div id="exportModal">
+        <h3>Selecciona las columnas a exportar</h3>
+        <div>
+            <input type="checkbox" id="exportUid" checked> Uid<br>
+            <input type="checkbox" id="exportUnit" checked> Unit<br>
+            <input type="checkbox" id="exportTypeLogData" checked> TypeLogData<br>
+            <input type="checkbox" id="exportCurveDescription" checked> CurveDescription<br>
+            <input type="checkbox" id="exportMnemonic" checked> Mnemonic<br>
+            <input type="checkbox" id="exportIsIndex" checked> IsIndex<br>
+            <input type="checkbox" id="exportSaveInterval" checked> SaveInterval<br>
+            <input type="checkbox" id="exportIsEnabled" checked> IsEnabled<br>
+            <input type="checkbox" id="exportIndexComponentSource" checked> Index Source<br>
+            <input type="checkbox" id="exportIndexComponentName" checked> Index Name<br>
+            <input type="checkbox" id="exportValueComponentSource" checked> Value Source<br>
+            <input type="checkbox" id="exportValueComponentName" checked> Value Name<br>
+        </div>
+        <button onclick="exportToXlsx()">Exportar</button>
+        <button onclick="closeExportOptions()">Cancelar</button>
+    </div>
+
     <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
     <script src="loadJson.js"></script>
     <script src="main.js"></script>
+    <script src="export.js"></script>
 </body>
 
 </html>

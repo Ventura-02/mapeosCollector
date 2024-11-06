@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(220deg, #c16f84, #142b44, #715d82, #d7e5f1);
+    background: linear-gradient(220deg, #c16f84, #142b44, #715d82, #cbb6ee);
     background-size: 400% 400%;
     margin: 0;
     font-family: Arial, sans-serif;
@@ -68,18 +68,20 @@ button:hover {
 
 #fileNameDisplay {
     display: none;
-    margin: 20px 0 20px 20px;
-    /* Added left margin */
+    /* Initially hidden */
+    margin: 20px auto;
+    /* Center the element horizontally */
     padding: 5px;
     max-width: 300px;
+    /* Set a maximum width */
     background-color: #2c4458;
     color: #ffffff;
     font-size: 14px;
     text-align: center;
+    /* Center the text */
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     font-family: "Lexend", sans-serif;
-    clear: both;
 }
 
 

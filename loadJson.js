@@ -14,6 +14,7 @@ function loadJson() {
                     displayData(jsonData);
                     document.getElementById('addRowButton').style.display = 'block';
                     document.getElementById('fileNameDisplay').textContent = `Archivo cargado: ${file.name}`;
+                    fileNameDisplay.style.display = 'block';
                 } catch (error) {
                     alert('Error al cargar el archivo: ' + error.message);
                 }
@@ -24,4 +25,3 @@ function loadJson() {
         }
     };
 }
-
