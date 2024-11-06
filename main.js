@@ -76,7 +76,7 @@ function displayData(data) {
                 addButton.onclick = function () {
                     addRowAt(params.node.rowIndex);
                 };
-                const deleteButton = document.createElement('button');
+                const deleteButton = document.createElement('buttonTrash');
                 deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteButton.classList.add('delete-row-button', 'btn', 'btn-danger', 'btn-sm');
                 deleteButton.style.padding = '2px 5px';
