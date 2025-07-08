@@ -128,7 +128,7 @@ function displayData(data) {
     if (gridInstance) {
         gridInstance.destroy();
     }
-    gridInstance = new agGrid.Grid(tableContainer, gridOptions);
+    gridInstance = agGrid.createGrid(tableContainer, gridOptions);
 }
 function deleteRow(index) {
     if (confirm('¿Estás seguro de que quieres eliminar esta fila?')) {
